@@ -1,4 +1,4 @@
-package com.maddob.sync;
+package com.maddob.sync.message;
 
 import io.vertx.core.eventbus.Message;
 

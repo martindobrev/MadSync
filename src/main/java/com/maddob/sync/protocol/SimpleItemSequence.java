@@ -5,7 +5,11 @@ import java.util.List;
 
 /**
  * SimpleItemSequence
-
+ *
+ *
+ * Stores the available item ids in a list,
+ * the available flag just
+ *
  * Created by martindobrev on 04/03/16.
  */
 public class SimpleItemSequence implements ItemSequence {

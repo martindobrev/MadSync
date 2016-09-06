@@ -1,9 +1,14 @@
 package com.maddob.sync;
 
+import com.maddob.sync.message.InMemorySequentialMessageStorage;
+import com.maddob.sync.message.MessageConsumer;
+import com.maddob.sync.message.MessageProvider;
 import com.maddob.sync.protocol.RequestData;
+import com.maddob.sync.user.InMemoryUserManager;
 import io.vertx.core.eventbus.Message;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,17 +22,9 @@ import java.util.Map;
  */
 public class InMemoryMessageProvider implements MessageProvider, MessageConsumer {
 
+    private HashMap<String, InMemorySequentialMessageStorage> messageStorage;
 
-    /** storage of messages without sender */
-    private Map<Long, Message> generalMessages;
-
-    private Long nextGeneralIndex = 1l;
-
-    /** storage of messages with available sender id */
-    private Map<String, Map<Long, Message>> identifiableMessages;
-
-
-    private Map<String, Long> nextUserIndexes;
+    private InMemoryUserManager userManager;
 
     /**
      * Constructor
@@ -36,27 +33,21 @@ public class InMemoryMessageProvider implements MessageProvider, MessageConsumer
      *
      */
     public InMemoryMessageProvider() {
-        generalMessages = new HashMap<>();
-        identifiableMessages = new HashMap<>();
-        nextUserIndexes = new HashMap<>();
+
+        messageStorage = new HashMap<>();
+        userManager = new InMemoryUserManager();
     }
 
     public Map<Long, Message> getMessages(RequestData data) {
 
-        Map<Long, Message> messages;
+        Map<Long, Message> messages = new HashMap<>();
 
-        if (data.userId == null) {
-            messages = generalMessages;
+        if (null == messageStorage.get(data.userId)) {
+            messageStorage.put(data.userId, new InMemorySequentialMessageStorage());
         } else {
-            messages = identifiableMessages.get(data.userId);
-        }
 
-        if (null != data.sequence) {
-            for (Long sequenceNumber : data.sequence.getSequence()) {
-                if (messages.containsKey(sequenceNumber)) {
-                    messages.remove(sequenceNumber);
-                }
-            }
+            InMemorySequentialMessageStorage storage = messageStorage.get(data.userId);
+            messages = storage.getItemsForRequestedItemSequence(data.sequence);
         }
 
         return messages;
@@ -64,31 +55,17 @@ public class InMemoryMessageProvider implements MessageProvider, MessageConsumer
 
     public long processMessage(Message message) {
         String sender = null;
+
         if (null != message.headers()) {
             sender = message.headers().get("Sender");
-
-            if (message.headers().contains("Receiver")) {
-                // identifiableMessage
-                // TODO: CONTINUE WORK HERE
-                // - add messages to all receivers also
-                // - maybe write a separate functions for handling message addition to a user
-            }
         }
 
-        if (null == sender) {
-            long newIndex = nextGeneralIndex++;
-            generalMessages.put(newIndex, message);
-            return newIndex;
-        } else {
-            if (false == identifiableMessages.containsKey(sender)) {
-                identifiableMessages.put(sender, new HashMap<>());
-                nextUserIndexes.put(sender, 1l);
-            }
+        InMemorySequentialMessageStorage senderStorage = messageStorage.get(sender);
 
-            long nextIndex = nextUserIndexes.get(sender);
-            identifiableMessages.get(sender).put(nextUserIndexes.get(sender), message);
-            nextUserIndexes.put(sender, nextIndex + 1);
-            return nextIndex;
+        if (null == senderStorage) {
+            messageStorage.put(sender, new InMemorySequentialMessageStorage());
         }
+
+        return messageStorage.get(sender).addItem(message);
     }
 }
