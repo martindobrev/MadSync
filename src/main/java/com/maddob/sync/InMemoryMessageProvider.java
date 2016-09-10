@@ -54,17 +54,30 @@ public class InMemoryMessageProvider implements MessageProvider, MessageConsumer
     }
 
     public long processMessage(Message message) {
+
         String sender = null;
+        String receiver = null;
+
 
         if (null != message.headers()) {
-            sender = message.headers().get("Sender");
+            sender = message.headers().get("sender");
+            receiver = message.headers().get("receiver");
         }
 
         InMemorySequentialMessageStorage senderStorage = messageStorage.get(sender);
-
         if (null == senderStorage) {
             messageStorage.put(sender, new InMemorySequentialMessageStorage());
         }
+
+        if (null != receiver) {
+            InMemorySequentialMessageStorage receiverStorage = messageStorage.get(receiver);
+            if (null == receiverStorage) {
+                messageStorage.put(receiver, new InMemorySequentialMessageStorage());
+            }
+            messageStorage.get(receiver).addItem(message);
+        }
+
+
 
         return messageStorage.get(sender).addItem(message);
     }

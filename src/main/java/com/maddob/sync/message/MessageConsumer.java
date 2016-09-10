@@ -3,9 +3,11 @@ package com.maddob.sync.message;
 import io.vertx.core.eventbus.Message;
 
 /**
+ * Basic interface for each message
+ *
  * Created by martindobrev on 15/03/16.
  */
 public interface MessageConsumer {
-    public long processMessage(Message message);
+    long processMessage(Message message);
 
 }

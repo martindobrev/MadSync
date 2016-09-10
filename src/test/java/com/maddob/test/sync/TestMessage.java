@@ -19,9 +19,14 @@ public class TestMessage implements Message<String> {
 
     public TestMessage() {}
 
-
     public TestMessage(String body) {
         this.body = body;
+    }
+
+    public TestMessage(String body, String sender, String receiver) {
+        this.body = body;
+        add("sender", sender);
+        add("receiver", receiver);
     }
 
     @Override
@@ -36,7 +41,7 @@ public class TestMessage implements Message<String> {
 
     @Override
     public String body() {
-        return null;
+        return body;
     }
 
     @Override

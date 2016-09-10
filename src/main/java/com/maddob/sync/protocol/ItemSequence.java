@@ -19,5 +19,13 @@ public interface ItemSequence {
      */
     public List<Long> getSequence();
 
+    /**
+     * Flag to notify the message provider about the presence of messages
+     *
+     * If the method returns true, the provided messages are available, otherwise
+     * the provided messages are missing
+     *
+     * @return
+     */
     public boolean sequenceAvailable();
 }

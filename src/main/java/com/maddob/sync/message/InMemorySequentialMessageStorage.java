@@ -56,7 +56,7 @@ public class InMemorySequentialMessageStorage implements SequentialItemStorage<M
             if (null != presentIds) {
 
                 for (int i = 0; i < messages.size(); i++) {
-                    if (false == presentIds.contains(new Long(i + 1))) {
+                    if (sequence.sequenceAvailable() == presentIds.contains(new Long(i + 1))) {
                         items.put((long) (i + 1), messages.get(i));
                     }
                 }
