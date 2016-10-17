@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <script src="http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+
+</head>
+<body>
+  <h2>Hello from VertX Static file!</h2>
+
+
+  <script type="text/javascript">
+
+    var sock = new SockJS('http://localhost:8080/myapp');
+    sock.onopen = function() {
+      sock.send('test');
+      console.log('open');
+    };
+    sock.onmessage = function(e) {
+      console.log('message', e.data);
+
+      sock.close();
+    };
+    sock.onclose = function() {
+      console.log('close');
+    };
+  </script>
+</body>
+</html>
