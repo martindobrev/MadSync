@@ -1,14 +1,13 @@
 package com.maddob.sync;
 
 import com.maddob.sync.message.InMemorySequentialMessageStorage;
-import com.maddob.sync.message.MessageConsumer;
+import com.maddob.sync.message.MadSyncMessageConsumer;
 import com.maddob.sync.message.MessageProvider;
 import com.maddob.sync.protocol.RequestData;
 import com.maddob.sync.user.InMemoryUserManager;
 import io.vertx.core.eventbus.Message;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,7 +19,7 @@ import java.util.Map;
  *
  * Created by martindobrev on 15/03/16.
  */
-public class InMemoryMessageProvider implements MessageProvider, MessageConsumer {
+public class InMemoryMadSyncMessageProvider implements MessageProvider, MadSyncMessageConsumer {
 
     private HashMap<String, InMemorySequentialMessageStorage> messageStorage;
 
@@ -32,7 +31,7 @@ public class InMemoryMessageProvider implements MessageProvider, MessageConsumer
      * just initialize the storage data structures
      *
      */
-    public InMemoryMessageProvider() {
+    public InMemoryMadSyncMessageProvider() {
 
         messageStorage = new HashMap<>();
         userManager = new InMemoryUserManager();

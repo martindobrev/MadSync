@@ -1,9 +1,8 @@
 package com.maddob.test.sync;
 
-import com.maddob.sync.InMemoryMessageProvider;
+import com.maddob.sync.InMemoryMadSyncMessageProvider;
 import com.maddob.sync.protocol.RequestData;
 import com.maddob.sync.protocol.SimpleItemSequence;
-import com.sun.tools.internal.ws.processor.model.Request;
 import io.vertx.core.eventbus.Message;
 import junit.framework.TestCase;
 
@@ -23,12 +22,12 @@ import java.util.Map;
  */
 public class MessageProviderTest extends TestCase {
 
-    private InMemoryMessageProvider provider;
+    private InMemoryMadSyncMessageProvider provider;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        provider = new InMemoryMessageProvider();
+        provider = new InMemoryMadSyncMessageProvider();
         provider.processMessage(new TestMessage());
         provider.processMessage(new TestMessage());
     }

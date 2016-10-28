@@ -7,7 +7,7 @@ import io.vertx.core.eventbus.Message;
  *
  * Created by martindobrev on 15/03/16.
  */
-public interface MessageConsumer {
+public interface MadSyncMessageConsumer {
     long processMessage(Message message);
 
 }

@@ -1,10 +1,17 @@
 package com.maddob.sync.vertx.ws.server;
 
 import io.vertx.core.*;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.*;
+import io.vertx.core.json.Json;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 
@@ -29,6 +36,12 @@ public class WebSocketServerVerticle extends AbstractVerticle {
 
         Router router = Router.router(getVertx());
 
+        MessageConsumer<Json> jsonMessageConsumer = getVertx().eventBus().consumer("login");
+        jsonMessageConsumer.handler(jsonMessage -> {
+            System.out.println("I have received a message: " + jsonMessage.body().toString());
+        });
+
+
 //        router.route("/").handler(routingContext -> {
 //
 //            HttpServerResponse response = routingContext.response();
@@ -36,11 +49,19 @@ public class WebSocketServerVerticle extends AbstractVerticle {
 //            response.end("Hello World from vertx!!!");
 //        });
 
-        SockJSHandlerOptions options = new SockJSHandlerOptions().setHeartbeatInterval(2000);
-        SockJSHandler sockJsHandler = SockJSHandler.create(getVertx(), options);
-        sockJsHandler.socketHandler(sockJSSocket -> sockJSSocket.handler(sockJSSocket::write));
+        SockJSHandlerOptions sockJSHandlerOptionsoptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
+        SockJSHandler sockJsHandler = SockJSHandler.create(getVertx(), sockJSHandlerOptionsoptions);
 
-        router.route("/myapp/*").handler(sockJsHandler);
+        BridgeOptions bridgeOptions = new BridgeOptions();
+        bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("message"));
+        bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("message"));
+        bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddress("login"));
+        bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("login"));
+        sockJsHandler.bridge(bridgeOptions);
+
+        router.route("/eventbus/*").handler(sockJsHandler);
+
+        sockJsHandler.socketHandler(sockJSSocket -> sockJSSocket.handler(sockJSSocket::write));
         router.route("/*").handler(StaticHandler.create());
         server.requestHandler(router::accept).listen(8080);
     }
