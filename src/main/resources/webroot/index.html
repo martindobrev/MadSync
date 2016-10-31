@@ -32,6 +32,12 @@
         <small>There is no authentication at the moment, you can login only by providing a username</small>
       </form>
     </div>
+
+
+    <div class="uk-width-3-6" v-if="loggedIn">
+      <h1>Welcome <span>{{username}}</span></h1>
+      <h3>Here you can try the chat component out...</h3>
+    </div>
   </div>
 
   <script type="text/javascript">
@@ -49,20 +55,26 @@
 
           var ebInstance = this.EB;
           var username = this.username;
+          var t = this;
+
           this.EB.onopen = function() {
+
+            console.log("Registering loginresult handler...");
+            ebInstance.registerHandler("loginresult." + username, function(error, message) {
+              console.log('received a message: ' + JSON.stringify(message));
+              if (message.body) {
+                if ('success' === message.body.login) {
+                  t.loggedIn = true;
+                }
+              }
+            });
+
             console.log("Try to login with: " + username);
             ebInstance.send("login", {username: username});
           };
-        },
-
-        registerEventBusHandler: function() {
-          this.EB.registerHandler(this.username, function(error, message) {
-            console.log('received a message: ' + JSON.stringify(message));
-          });
         }
       }
     });
-
   </script>
 </body>
 </html>
