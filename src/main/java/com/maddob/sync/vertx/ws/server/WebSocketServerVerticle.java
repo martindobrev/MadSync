@@ -39,11 +39,9 @@ public class WebSocketServerVerticle extends AbstractVerticle {
 
         Router router = Router.router(getVertx());
 
-        MessageConsumer<JsonObject> jsonMessageConsumer = getVertx().eventBus().consumer("login");
-        jsonMessageConsumer.handler(jsonMessage -> {
+        MessageConsumer<JsonObject> jsonLoginConsumer = getVertx().eventBus().consumer("login");
+        jsonLoginConsumer.handler(jsonMessage -> {
             System.out.println("I have received a message: " + jsonMessage.body().toString());
-
-
             if (jsonMessage.body().containsKey("username")) {
                 String username = jsonMessage.body().getString("username");
                 if (null != username) {
@@ -52,9 +50,13 @@ public class WebSocketServerVerticle extends AbstractVerticle {
                     getVertx().eventBus().publish("loginresult." + username, loginSuccessful);
                 }
             }
-
         });
 
+
+        MessageConsumer<JsonObject> jsonMessageConsumer = getVertx().eventBus().consumer("message");
+        jsonMessageConsumer.handler(jsonMessage -> {
+            System.out.println("I have received a message from: " + jsonMessage.toString());
+        });
 
 //        router.route("/").handler(routingContext -> {
 //
@@ -69,6 +71,7 @@ public class WebSocketServerVerticle extends AbstractVerticle {
         BridgeOptions bridgeOptions = new BridgeOptions();
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("login"));
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddress("login"));
+        bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("message"));
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
         sockJsHandler.bridge(bridgeOptions);
