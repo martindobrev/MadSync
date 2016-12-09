@@ -1,11 +1,16 @@
 var app = new Vue({
   el: '#app',
   data: {
-    loggedIn: false,
-    username: "",
+    loggedIn: true,
+    username: "Martin",
     EB: null,
     chatParty: null,
-    availableChatParties : ['Martin', 'Joe', 'Kaka Tonka']
+    availableChatParties : ['Martin', 'Joe', 'Kaka Tonka'],
+    messages : {
+        Martin: [{text: 'Hi'}, {text: 'Whazzzuuuppp'}],
+        Joe : [{text: 'Can you please implement this feature till the end of the month???'}, {text: 'Sure'}]
+    },
+    inputMessage : ''
   },
   methods: {
     login: function() {
@@ -32,6 +37,11 @@ var app = new Vue({
       };
     },
 
+    logout: function() {
+        this.username = null;
+        this.loggedIn = false;
+    },
+
     selectChatParty: function(party) {
       console.log('SELECTING A CHAT PARTY - ' + party);
       this.chatParty = party;
@@ -39,6 +49,12 @@ var app = new Vue({
 
     isChatPartyActive: function(party) {
        return party === this.chatParty;
+    },
+
+    sendMessage: function() {
+        console.log('Sending message ' + this.inputMessage + ' TO ' + this.chatParty);
+        this.EB.send("message", {from: this.username, to: this.chatParty, text: this.inputMessage});
+        this.inputMessage = '';
     }
   }
 });
