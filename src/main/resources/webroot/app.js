@@ -1,7 +1,7 @@
 var app = new Vue({
   el: '#app',
   data: {
-    loggedIn: true,
+    loggedIn: false,
     username: "Martin",
     EB: null,
     chatParty: null,
@@ -32,6 +32,17 @@ var app = new Vue({
           }
         });
 
+        ebInstance.registerHandler("message.send." + username, function(error, message) {
+            console.log('Message was successfully send: ' + JSON.stringify(message));
+        });
+
+        ebInstance.registerHandler("message.receive." + username, function(error, message) {
+            console.log('Message received: ' + JSON.stringify(message));
+            if (message.body.sender) {
+                t.messages[message.body.sender].push(message.body);
+            }
+        });
+
         console.log("Try to login with: " + username);
         ebInstance.send("login", {username: username});
       };
@@ -53,7 +64,7 @@ var app = new Vue({
 
     sendMessage: function() {
         console.log('Sending message ' + this.inputMessage + ' TO ' + this.chatParty);
-        this.EB.send("message", {from: this.username, to: this.chatParty, text: this.inputMessage});
+        this.EB.send("message", {sender: this.username, receiver: this.chatParty, text: this.inputMessage});
         this.inputMessage = '';
     }
   }

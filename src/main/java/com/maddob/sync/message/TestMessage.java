@@ -1,4 +1,4 @@
-package com.maddob.test.sync;
+package com.maddob.sync.message;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

@@ -3,9 +3,14 @@ package com.maddob.sync;
 import com.maddob.sync.message.InMemorySequentialMessageStorage;
 import com.maddob.sync.message.MadSyncMessageConsumer;
 import com.maddob.sync.message.MessageProvider;
+import com.maddob.sync.message.TestMessage;
 import com.maddob.sync.protocol.RequestData;
 import com.maddob.sync.user.InMemoryUserManager;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +24,7 @@ import java.util.Map;
  *
  * Created by martindobrev on 15/03/16.
  */
-public class InMemoryMadSyncMessageProvider implements MessageProvider, MadSyncMessageConsumer {
+public class InMemoryMadSyncMessageProvider extends AbstractVerticle implements MessageProvider, MadSyncMessageConsumer {
 
     private HashMap<String, InMemorySequentialMessageStorage> messageStorage;
 
@@ -32,9 +37,29 @@ public class InMemoryMadSyncMessageProvider implements MessageProvider, MadSyncM
      *
      */
     public InMemoryMadSyncMessageProvider() {
-
         messageStorage = new HashMap<>();
         userManager = new InMemoryUserManager();
+    }
+
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        MessageConsumer<JsonObject> jsonMessageConsumer = getVertx().eventBus().consumer("message");
+        jsonMessageConsumer.handler(jsonMessage -> {
+            String text = jsonMessage.body().getString("text");
+            String sender = jsonMessage.body().getString("sender");
+            String receiver = jsonMessage.body().getString("receiver");
+
+            TestMessage msg = new TestMessage(text, sender, receiver);
+            long messageSequenceNumber = processMessage(msg);
+
+            JsonObject obj = new JsonObject();
+            obj.put("messageSequenceNumber", messageSequenceNumber);
+            getVertx().eventBus().publish("message.send." + sender, obj);
+
+            System.out.println("I have received a message from: " + jsonMessage.toString());
+        });
     }
 
     public Map<Long, Message> getMessages(RequestData data) {
@@ -74,6 +99,13 @@ public class InMemoryMadSyncMessageProvider implements MessageProvider, MadSyncM
                 messageStorage.put(receiver, new InMemorySequentialMessageStorage());
             }
             messageStorage.get(receiver).addItem(message);
+
+            JsonObject obj = new JsonObject();
+            obj.put("text", message.body());
+            obj.put("sender", sender);
+            obj.put("receiver", receiver);
+
+            getVertx().eventBus().publish("message.receive." + receiver, obj);
         }
 
 

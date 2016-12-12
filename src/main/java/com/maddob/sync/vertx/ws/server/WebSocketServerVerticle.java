@@ -1,5 +1,8 @@
 package com.maddob.sync.vertx.ws.server;
 
+import com.maddob.sync.InMemoryMadSyncMessageProvider;
+import com.maddob.sync.message.MessageProvider;
+import com.maddob.sync.message.TestMessage;
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -52,19 +55,6 @@ public class WebSocketServerVerticle extends AbstractVerticle {
             }
         });
 
-
-        MessageConsumer<JsonObject> jsonMessageConsumer = getVertx().eventBus().consumer("message");
-        jsonMessageConsumer.handler(jsonMessage -> {
-            System.out.println("I have received a message from: " + jsonMessage.toString());
-        });
-
-//        router.route("/").handler(routingContext -> {
-//
-//            HttpServerResponse response = routingContext.response();
-//            response.putHeader("content-type", "text/html");
-//            response.end("Hello World from vertx!!!");
-//        });
-
         SockJSHandlerOptions sockJSHandlerOptionsoptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
         SockJSHandler sockJsHandler = SockJSHandler.create(getVertx(), sockJSHandlerOptionsoptions);
 
@@ -72,6 +62,8 @@ public class WebSocketServerVerticle extends AbstractVerticle {
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("login"));
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddress("login"));
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("message"));
+        bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("message\\.send\\..+"));
+        bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("message\\.receive\\..+"));
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
         sockJsHandler.bridge(bridgeOptions);

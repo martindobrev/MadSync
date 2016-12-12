@@ -1,6 +1,7 @@
 package com.maddob.test.sync;
 
 import com.maddob.sync.InMemoryMadSyncMessageProvider;
+import com.maddob.sync.message.TestMessage;
 import com.maddob.sync.protocol.RequestData;
 import com.maddob.sync.protocol.SimpleItemSequence;
 import io.vertx.core.eventbus.Message;

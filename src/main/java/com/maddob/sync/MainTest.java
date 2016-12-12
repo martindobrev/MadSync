@@ -19,13 +19,11 @@ public class MainTest {
 
 	public static void main(String[] args) {
 		Vertx vertx = Vertx.vertx();
-		DummyReceiverVerticle receiver = new DummyReceiverVerticle();
 		// DummySenderVerticle sender = new DummySenderVerticle();
-		vertx.deployVerticle(receiver);
 
 		WebSocketServerVerticle webSocketServerVerticle = new WebSocketServerVerticle();
+		InMemoryMadSyncMessageProvider madSyncMessageProvider = new InMemoryMadSyncMessageProvider();
+		vertx.deployVerticle(madSyncMessageProvider);
 		vertx.deployVerticle(webSocketServerVerticle);
-
-
 	}
 }
