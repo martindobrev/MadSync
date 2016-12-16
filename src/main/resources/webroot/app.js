@@ -8,7 +8,8 @@ var app = new Vue({
     availableChatParties : ['Martin', 'Joe', 'Kaka Tonka'],
     messages : {
         Martin: [{text: 'Hi'}, {text: 'Whazzzuuuppp'}],
-        Joe : [{text: 'Can you please implement this feature till the end of the month???'}, {text: 'Sure'}]
+        Joe : [{text: 'Can you please implement this feature till the end of the month???'}, {text: 'Sure'}],
+        'Kaka Tonka' : []
     },
     inputMessage : ''
   },
@@ -64,7 +65,9 @@ var app = new Vue({
 
     sendMessage: function() {
         console.log('Sending message ' + this.inputMessage + ' TO ' + this.chatParty);
-        this.EB.send("message", {sender: this.username, receiver: this.chatParty, text: this.inputMessage});
+        var message = {sender: this.username, receiver: this.chatParty, text: this.inputMessage};
+        this.messages[this.chatParty].push(message);
+        this.EB.send("message", message);
         this.inputMessage = '';
     }
   }
