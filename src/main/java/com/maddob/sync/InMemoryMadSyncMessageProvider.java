@@ -69,7 +69,6 @@ public class InMemoryMadSyncMessageProvider extends AbstractVerticle implements 
         if (null == messageStorage.get(data.userId)) {
             messageStorage.put(data.userId, new InMemorySequentialMessageStorage());
         } else {
-
             InMemorySequentialMessageStorage storage = messageStorage.get(data.userId);
             messages = storage.getItemsForRequestedItemSequence(data.sequence);
         }
@@ -81,7 +80,6 @@ public class InMemoryMadSyncMessageProvider extends AbstractVerticle implements 
 
         String sender = null;
         String receiver = null;
-
 
         if (null != message.headers()) {
             sender = message.headers().get("sender");

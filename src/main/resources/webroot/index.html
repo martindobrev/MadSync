@@ -79,14 +79,14 @@
                 <p v-if="chatParty === null">Please select a party to chat with :)</p>
                 <div v-if="chatParty">
                     <div class="uk-panel uk-panel-box uk-panel-box-primary uk-scrollable-box">
-                        <div v-for="message in messages[chatParty]">
-                            {{message.text}}
+                        <div class="uk-clearfix" v-for="message in messages[chatParty]">
+                            <span v-bind:class="{'uk-float-right' : isIncomingMessage(message), 'uk-margin-large-right' : isIncomingMessage(message)}">
+                                {{message.text}}
+                            </span>
                         </div>
                     </div>
 
                     <input type="text" placeholder="" class="uk-width-1-1" v-model="inputMessage" v-on:keyup.13="sendMessage()">
-
-                    {{inputMessage}}
                 </div>
             </div>
         </div>
