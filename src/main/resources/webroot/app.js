@@ -30,6 +30,8 @@ var app = new Vue({
                             t.loggedIn = true;
                         }
                     }
+
+                    t.requestData();
                 });
 
                 ebInstance.registerHandler("message.send." + username, function (error, message) {
@@ -40,6 +42,21 @@ var app = new Vue({
                     console.log('Message received: ' + JSON.stringify(message));
                     if (message.body.sender) {
                         t.messages[message.body.sender].push(message.body);
+                    }
+                });
+
+                ebInstance.registerHandler('data.' + username, function(error, message) {
+                    console.log('Sync messages received: ' + JSON.stringify(message.body));
+                    if (message.body) {
+                        for (var messageId in message.body) {
+                            var textMessage = message.body[messageId];
+
+                            if (textMessage.sender === t.username) {
+                                t.messages[textMessage.receiver].splice(parseInt(messageId) - 1, 0, textMessage);
+                            } else {
+                                t.messages[textMessage.sender].splice(parseInt(messageId) - 1, 0, textMessage);
+                            }
+                        }
                     }
                 });
 
@@ -56,6 +73,7 @@ var app = new Vue({
         logout: function () {
             this.username = null;
             this.loggedIn = false;
+            this.messages = {Martin: [], Joe: [], 'Kaka Tonka': []};
             this.EB.close();
         },
 
@@ -83,6 +101,21 @@ var app = new Vue({
                 }
             }
             return false;
+        },
+
+        /**
+         * Requests the data for the user
+         *
+         * Necessary to sync the state of the client and the server about
+         * previous messages
+         */
+        requestData: function() {
+            var requestData = {
+                userId              : this.username,
+                maxSequenceNumber   : 0,
+                sequence            : {available: false, sequence: []}
+            };
+            this.EB.send("data", requestData);
         }
     }
 });

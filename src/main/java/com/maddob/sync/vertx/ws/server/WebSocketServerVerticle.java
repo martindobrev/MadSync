@@ -3,6 +3,8 @@ package com.maddob.sync.vertx.ws.server;
 import com.maddob.sync.InMemoryMadSyncMessageProvider;
 import com.maddob.sync.message.MessageProvider;
 import com.maddob.sync.message.TestMessage;
+import com.maddob.sync.protocol.RequestData;
+import com.maddob.sync.protocol.SimpleItemSequence;
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -66,6 +68,8 @@ public class WebSocketServerVerticle extends AbstractVerticle {
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("message\\.receive\\..+"));
         bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
         bridgeOptions.addInboundPermitted(new PermittedOptions().setAddressRegex("loginresult\\..+"));
+        bridgeOptions.addInboundPermitted(new PermittedOptions().setAddress("data"));
+        bridgeOptions.addOutboundPermitted(new PermittedOptions().setAddressRegex("data\\..+"));
         sockJsHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJsHandler);
 

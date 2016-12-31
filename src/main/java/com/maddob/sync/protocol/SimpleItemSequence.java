@@ -6,7 +6,6 @@ import java.util.List;
 /**
  * SimpleItemSequence
  *
- *
  * Stores the available item ids in a list,
  * the available flag just
  *
